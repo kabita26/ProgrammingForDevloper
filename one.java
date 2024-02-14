@@ -1,3 +1,5 @@
+
+// Output: 7
 public class one {
 
     public static int minCost(int[][] costs) {
@@ -51,3 +53,4 @@ public class one {
         System.out.println("Minimum cost: " + minCost(costs)); // Output: 7
     }
 }
+// Output: 7

@@ -8,31 +8,32 @@
 
 public class twoA {
     public static int minMovesToEqualizeDresses(int[] sewingMachines) {
-        int totalDresses = Arrays.stream(sewingMachines).sum();
+        int totalDresses = 0;
         int n = sewingMachines.length;
         
-        if (totalDresses % n != 0) {
-            return -1; // Cannot equalize the number of dresses
-        }
+        for (int dress :sewingMachines){
+            totalDresses +=dress;
+        } 
 
         int targetDresses = totalDresses / n;
         int moves = 0;
+        int diff =0;
 
         for (int i = 0; i < n; i++) {
-            int diff = sewingMachines[i] - targetDresses;
+            diff += sewingMachines[i] - targetDresses;
+            moves +=Math.abs(diff);
 
-            if (diff > 0) {
-                sewingMachines[(i + 1) % n] += diff; // Distribute excess dresses to the next machine cyclically
-                moves += diff;
-            }
         }
 
-        return moves;
+        return moves/2;
     }
 
     public static void main(String[] args) {
         int[] sewingMachines = {1, 0, 5};
-        System.out.println("Minimum number of moves required: " + minMovesToEqualizeDresses(sewingMachines));
+        int result=minMovesToEqualizeDresses(sewingMachines);
+
+
+        System.out.println("Minimum number of moves required: " + result);
     }
 }
-// Output: 3
+// Output: Minimum number of moves required: 2

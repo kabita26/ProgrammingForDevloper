@@ -1,1 +1,0 @@
-            for (Object friend : selectedFriends) {

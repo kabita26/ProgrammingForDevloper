@@ -19,7 +19,7 @@ public class fiveA {
 
     // Constructor to initialize parameters for the Ant Colony Optimization algorithm
     public fiveA(int numberOfCities, int numberOfAnts, double alpha, double beta,
-                 double evaporationRate, double initialPheromone, int startingCity) {
+                double evaporationRate, double initialPheromone, int startingCity) {
         this.numberOfCities = numberOfCities;
         this.numberOfAnts = numberOfAnts;
         this.alpha = alpha;

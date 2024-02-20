@@ -19,6 +19,7 @@ public class ImageDownloaderApp extends JFrame {
     private JButton downloadButton;
     private JButton pauseButton;
     private JButton resumeButton;
+    private JButton deleteButton; // Added delete button
     private JTextArea logArea;
     private JPanel imagePanel; // Panel to hold the downloaded images
     private ExecutorService executor;
@@ -39,6 +40,7 @@ public class ImageDownloaderApp extends JFrame {
         downloadButton = new JButton("Download");
         pauseButton = new JButton("Pause");
         resumeButton = new JButton("Resume");
+        deleteButton = new JButton("Delete"); // Added delete button
         logArea = new JTextArea();
         logArea.setEditable(false);
 
@@ -53,6 +55,7 @@ public class ImageDownloaderApp extends JFrame {
         buttonPanel.add(downloadButton);
         buttonPanel.add(pauseButton);
         buttonPanel.add(resumeButton);
+        buttonPanel.add(deleteButton); // Added delete button
 
         add(inputPanel, BorderLayout.NORTH);
         add(new JScrollPane(logArea), BorderLayout.CENTER); // Using JScrollPane for logArea
@@ -69,6 +72,7 @@ public class ImageDownloaderApp extends JFrame {
         downloadButton.addActionListener(e -> startDownload());
         pauseButton.addActionListener(e -> pauseDownload());
         resumeButton.addActionListener(e -> resumeDownload());
+        deleteButton.addActionListener(e -> deleteImages()); // Added action listener for delete button
     }
 
     /**
@@ -145,6 +149,16 @@ public class ImageDownloaderApp extends JFrame {
     private void resumeDownload() {
         isPaused = false;
         log("Downloads Resumed");
+    }
+
+    /**
+     * Deletes all downloaded images from the GUI.
+     */
+    private void deleteImages() {
+        imagePanel.removeAll(); // Remove all images from the panel
+        validate(); // Revalidate the layout
+        repaint(); // Repaint the panel
+        log("All downloaded images deleted");
     }
 
     /**

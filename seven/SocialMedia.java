@@ -24,16 +24,19 @@ public class SocialMedia extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        allUsers = new ArrayList<>(); // Initialize the list
-        friendRequests = new ArrayList<>(); // Initialize friendRequests list
+        allUsers = new ArrayList<>();
+        friendRequests = new ArrayList<>();
 
+        // Create the login panel and add it to the frame
         JPanel loginPanel = createLoginPanel();
         add(loginPanel);
 
-        connectToDatabase(); // Connect to the database
-        startAutoSaveTimer(); // Start auto-save timer
+        // Connect to the database and start the auto-save timer
+        connectToDatabase();
+        startAutoSaveTimer();
     }
 
+    // Method to create the login panel with username input field and buttons
     private JPanel createLoginPanel() {
         JPanel loginPanel = new JPanel(new GridLayout(3, 2));
         JLabel usernameLabel = new JLabel("Username:");
@@ -42,42 +45,47 @@ public class SocialMedia extends JFrame {
         JLabel createAccountLabel = new JLabel("Don't have an account?");
         JButton createAccountButton = new JButton("Create Account");
 
+        // Add components to the login panel
         loginPanel.add(usernameLabel);
         loginPanel.add(usernameField);
-        loginPanel.add(new JLabel()); // Empty cell
+        loginPanel.add(new JLabel());
         loginPanel.add(loginButton);
         loginPanel.add(createAccountLabel);
         loginPanel.add(createAccountButton);
 
-        loginButton.addActionListener(e -> login(usernameField.getText())); // Action listener for login button
-        createAccountButton.addActionListener(e -> createAccount()); // Action listener for create account button
+        // Add action listeners to the buttons
+        loginButton.addActionListener(e -> login(usernameField.getText()));
+        createAccountButton.addActionListener(e -> createAccount());
 
         return loginPanel;
     }
 
+    // Method to handle login functionality
     private void login(String username) {
         if (username != null && !username.isEmpty()) {
             loggedInUsername = username;
-            showHomePage();
+            showHomePage(); // Once logged in, show the home page
         } else {
             JOptionPane.showMessageDialog(null, "Please enter a username.");
         }
     }
 
+    // Method to create a new user account
     private void createAccount() {
         String username = JOptionPane.showInputDialog("Enter username:");
         if (username != null && !username.isEmpty()) {
-            // Show message for successful account creation
             JOptionPane.showMessageDialog(null, "Account created successfully for " + username);
-            // Add the new user to the list of all users
-            allUsers.add(username);
+            allUsers.add(username); // Add the new user to the list of all users
         }
     }
 
+    // Method to display the home page after successful login
     private void showHomePage() {
+        // Remove all existing components from the frame
         getContentPane().removeAll();
         repaint();
 
+        // Create the home panel with various buttons and labels
         JPanel homePanel = new JPanel(new BorderLayout());
         JButton logoutButton = new JButton("Logout");
         JLabel welcomeLabel = new JLabel("Welcome to the Home Page, " + loggedInUsername);
@@ -88,10 +96,12 @@ public class SocialMedia extends JFrame {
         JButton uploadImageButton = new JButton("Upload Image");
         imageLabel = new JLabel();
 
+        // Create top panel for logout button and welcome message
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         topPanel.add(logoutButton);
         topPanel.add(welcomeLabel);
 
+        // Create button panel for other functionality
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(uploadImageButton);
         buttonPanel.add(sendFriendRequestButton);
@@ -99,132 +109,111 @@ public class SocialMedia extends JFrame {
         buttonPanel.add(recommendContentButton);
         buttonPanel.add(showRequestsButton);
 
+        // Add components to the home panel
         homePanel.add(topPanel, BorderLayout.NORTH);
         homePanel.add(buttonPanel, BorderLayout.CENTER);
         homePanel.add(imageLabel, BorderLayout.SOUTH);
 
+        // Add the home panel to the frame
         getContentPane().add(homePanel);
-        revalidate();   
-        
+        revalidate();
 
-        logoutButton.addActionListener(e -> {
-            friendRequests.clear();
-            suggestedFriends = null;
-            loggedInUsername = null;
-            getContentPane().removeAll();
-            repaint();
-            JPanel loginPanel = createLoginPanel();
-            getContentPane().add(loginPanel);
-            revalidate();
-        });
-
-        suggestFriendsButton.addActionListener(e -> {
-            suggestedFriends = suggestFriends(loggedInUsername);
-            JOptionPane.showMessageDialog(null, "Suggested Friends: " + suggestedFriends);
-        });
-
+        // Add action listeners to the buttons
+        logoutButton.addActionListener(e -> logout());
+        suggestFriendsButton.addActionListener(e -> suggestFriends());
         sendFriendRequestButton.addActionListener(e -> sendFriendRequest());
-
-        showRequestsButton.addActionListener(e -> showFriendRequestsDialog());
-
-        recommendContentButton.addActionListener(e -> {
-            List<String> recommendedContent = recommendContent();
-
-            // Create a list model to hold the recommended content
-            DefaultListModel<String> listModel = new DefaultListModel<>();
-            for (String content : recommendedContent) {
-                listModel.addElement(content);
-            }
-
-            // Create a JList with the list model
-            JList<String> contentList = new JList<>(listModel);
-            contentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-            // Add the JList to a JScrollPane for scrolling if needed
-            JScrollPane scrollPane = new JScrollPane(contentList);
-
-            // Create a new JFrame to display the recommended content
-            JFrame recommendationFrame = new JFrame("Recommended Content");
-            recommendationFrame.getContentPane().add(scrollPane);
-            recommendationFrame.setSize(300, 200);
-            recommendationFrame.setLocationRelativeTo(null);
-            recommendationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            recommendationFrame.setVisible(true);
-
-            // Add a list selection listener to handle the click action
-            contentList.addListSelectionListener(event -> {
-                if (!event.getValueIsAdjusting()) {
-                    String selectedItem = contentList.getSelectedValue();
-                    if (selectedItem != null) {
-                        // Handle the selection, e.g., open a new page
-                        JOptionPane.showMessageDialog(recommendationFrame, "Selected item: " + selectedItem);
-                        // Here you can navigate to a new page based on the selected item
-                        // For simplicity, let's just print the selected item for now
-                        System.out.println("Selected item: " + selectedItem);
-                    }
-                }
-            });
-        });
-
+        showRequestsButton.addActionListener(e -> showFriendRequests());
+        recommendContentButton.addActionListener(e -> recommendContent());
         uploadImageButton.addActionListener(e -> uploadImage());
     }
 
-    private List<String> suggestFriends(String username) {
-        List<String> suggestedFriends = new ArrayList<>();
+    // Method to handle logout functionality
+    private void logout() {
+        friendRequests.clear();
+        suggestedFriends = null;
+        loggedInUsername = null;
+        getContentPane().removeAll();
+        repaint();
+        JPanel loginPanel = createLoginPanel(); // Show the login panel again
+        getContentPane().add(loginPanel);
+        revalidate();
+    }
+
+    // Method to suggest friends to the logged-in user
+    private void suggestFriends() {
+        suggestedFriends = new ArrayList<>();
         for (String user : allUsers) {
-            if (!user.equals(username) && !friendRequests.contains(user)) {
+            if (!user.equals(loggedInUsername) && !friendRequests.contains(user)) {
                 suggestedFriends.add(user);
             }
         }
-        return suggestedFriends;
+        JOptionPane.showMessageDialog(null, "Suggested Friends: " + suggestedFriends);
     }
 
+    // Method to send a friend request
     private void sendFriendRequest() {
-        if (suggestedFriends != null && !suggestedFriends.isEmpty()) {
-            String suggestedFriend = suggestedFriends.get(0);
-            if (allUsers.contains(suggestedFriend) && !friendRequests.contains(suggestedFriend)) {
-                int choice = JOptionPane.showConfirmDialog(null, "Would you like to send a friend request to " + suggestedFriend + "?", "Send Friend Request", JOptionPane.YES_NO_OPTION);
-                if (choice == JOptionPane.YES_OPTION) {
-                    friendRequests.add(suggestedFriend);
-                    JOptionPane.showMessageDialog(null,"Friend request sent to " + suggestedFriend);
-                    suggestedFriends.remove(0);
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "User does not exist, has not created an account, or already has a pending friend request.");
-            }
-        } else {
-            String recipient = JOptionPane.showInputDialog("Enter the username of the friend you want to send a request to:");
-            if (recipient != null && !recipient.isEmpty()) {
-                if (allUsers.contains(recipient) && !friendRequests.contains(recipient)) {
+        String recipient = selectRecipient();
+        if (recipient != null) {
+            if (allUsers.contains(recipient)) {
+                if (!friendRequests.contains(recipient)) {
                     friendRequests.add(recipient);
                     JOptionPane.showMessageDialog(null, "Friend request sent to " + recipient);
                 } else {
-                    JOptionPane.showMessageDialog(null, "User does not exist, has not created an account, or already has a pending friend request.");
+                    JOptionPane.showMessageDialog(null, "A friend request has already been sent to " + recipient);
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "User does not exist or has not created an account.");
             }
         }
     }
-    
-    private void showFriendRequestsDialog() {
-        if (friendRequests.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No friend requests.");
-            return;
+
+    // Method to select a recipient for the friend request
+    private String selectRecipient() {
+        if (suggestedFriends != null && !suggestedFriends.isEmpty()) {
+            String[] options = suggestedFriends.toArray(new String[0]);
+            return (String) JOptionPane.showInputDialog(null, "Select a friend to send request to:", "Send Friend Request",
+                    JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        } else {
+            return JOptionPane.showInputDialog("Enter the username of the friend you want to send a request to:");
         }
-        StringBuilder requestList = new StringBuilder("Friend Requests:\n");
-        for (String request : friendRequests) {
-            requestList.append(request).append("\n");
-        }
-        JOptionPane.showMessageDialog(null, requestList.toString(), "Friend Requests", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private List<String> recommendContent() {
+    // Method to show friend requests received by the logged-in user
+    private void showFriendRequests() {
+        if (friendRequests.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No friend requests.");
+        } else {
+            StringBuilder requestList = new StringBuilder("Friend Requests:\n");
+            for (String request : friendRequests) {
+                requestList.append(request).append("\n");
+            }
+            JOptionPane.showMessageDialog(null, requestList.toString(), "Friend Requests", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    // Method to recommend content to the logged-in user
+    private void recommendContent() {
         List<String> recommendedContent = new ArrayList<>();
         recommendedContent.add("Article");
         recommendedContent.add("Video");
         recommendedContent.add("Podcast");
-        return recommendedContent;
+        showRecommendedContent(recommendedContent);
     }
 
+    // Method to show recommended content to     // the user
+    private void showRecommendedContent(List<String> recommendedContent) {
+        if (recommendedContent.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No recommended content available.");
+        } else {
+            StringBuilder contentBuilder = new StringBuilder("Recommended Content:\n");
+            for (String content : recommendedContent) {
+                contentBuilder.append(content).append("\n");
+            }
+            JOptionPane.showMessageDialog(null, contentBuilder.toString(), "Recommended Content", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    // Method to handle image upload functionality
     private void uploadImage() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "jpeg");
@@ -233,32 +222,56 @@ public class SocialMedia extends JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             String imagePath = file.getPath();
-    
-            // Load the image and set it to the imageLabel
+
             ImageIcon icon = new ImageIcon(imagePath);
             Image image = icon.getImage().getScaledInstance(400, 300, Image.SCALE_DEFAULT);
             ImageIcon scaledIcon = new ImageIcon(image);
             imageLabel.setIcon(scaledIcon);
-    
-            // Ensure the frame is repainted
+
+            // Select friends to share the image with
+            selectFriendsToShareImage();
+
             repaint();
-    
-            // Save image to database
-            // saveImageToDatabase(imagePath);
         }
     }
     
-    
-    
-    
+    // Method to select friends to share the image with
+    private void selectFriendsToShareImage() {
+        if (allUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No friends available to share the image with.");
+            return;
+        }
 
+        String[] options = allUsers.toArray(new String[0]); // Convert to String array
+        String[] selectedFriends = (String[]) JOptionPane.showInputDialog(
+                this, // Parent component
+                "Select friends to share the image with:",
+                "Share Image",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                null
+        );
 
+        if (selectedFriends != null) {
+            // Process selected friends
+            StringBuilder selectedFriendsMessage = new StringBuilder("Selected friends to share the image with:\n");
+            for (String friend : selectedFriends) {
+                selectedFriendsMessage.append(friend).append("\n");
+                // You can implement the logic to share the image with selected friends here
+            }
+            JOptionPane.showMessageDialog(null, selectedFriendsMessage.toString());
+        } else {
+            JOptionPane.showMessageDialog(null, "No friends selected to share the image with.");
+        }
+    }
+
+    // Method to connect to the database
     private void connectToDatabase() {
         try {
             String DB_URL = "jdbc:postgresql://localhost:5432/DSA";
             String DB_USER = "postgres";
             String DB_PASSWORD = "123456";
-
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             System.out.println("Connected to database successfully.");
         } catch (SQLException e) {
@@ -266,6 +279,7 @@ public class SocialMedia extends JFrame {
         }
     }
 
+    // Method to start the auto-save timer for user data
     private void startAutoSaveTimer() {
         autoSaveTimer = new Timer();
         autoSaveTimer.schedule(new TimerTask() {
@@ -273,9 +287,10 @@ public class SocialMedia extends JFrame {
             public void run() {
                 saveUserDataToDatabase();
             }
-        }, 0, 60000);
+        }, 0, 60000); // Auto-save every minute
     }
 
+    // Method to save user data to the database
     private void saveUserDataToDatabase() {
         try {
             for (String request : friendRequests) {
@@ -300,6 +315,7 @@ public class SocialMedia extends JFrame {
         }
     }
 
+    // Main method to start the application
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

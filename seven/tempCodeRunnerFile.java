@@ -1,1 +1,1 @@
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "jpeg");
+            for (Object friend : selectedFriends) {

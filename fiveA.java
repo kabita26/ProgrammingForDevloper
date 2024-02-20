@@ -2,7 +2,6 @@
 // Problem. It initializes pheromone and distance matrices, constructs ant paths, updates pheromone trails, and
 //  finds the shortest path through iterative iterations.
 //  Finally, it demonstrates example usage by finding the shortest path for a given distance matrix.
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,8 +17,9 @@ public class fiveA {
     private double initialPheromone;
     private int startingCity;
 
+    // Constructor to initialize parameters for the Ant Colony Optimization algorithm
     public fiveA(int numberOfCities, int numberOfAnts, double alpha, double beta,
-                        double evaporationRate, double initialPheromone, int startingCity) {
+                 double evaporationRate, double initialPheromone, int startingCity) {
         this.numberOfCities = numberOfCities;
         this.numberOfAnts = numberOfAnts;
         this.alpha = alpha;
@@ -33,6 +33,7 @@ public class fiveA {
         distanceMatrix = new int[numberOfCities][numberOfCities];
     }
 
+    // Method to initialize the pheromone matrix with initial pheromone levels
     public void initializePheromoneMatrix() {
         for (int i = 0; i < numberOfCities; i++) {
             for (int j = 0; j < numberOfCities; j++) {
@@ -41,30 +42,36 @@ public class fiveA {
         }
     }
 
+    // Method to initialize the distance matrix with provided distance values
     public void initializeDistanceMatrix(int[][] distanceMatrix) {
         this.distanceMatrix = distanceMatrix;
     }
 
+    // Method to find the shortest path using Ant Colony Optimization algorithm
     public List<Integer> findShortestPath() {
         Random random = new Random();
         List<Integer> bestPath = null;
         int bestDistance = Integer.MAX_VALUE;
 
+        // Iteratively construct ant paths and update pheromone trails
         for (int iteration = 0; iteration < numberOfAnts; iteration++) {
             List<Integer> antPath = constructAntPath(random);
             int antDistance = calculatePathDistance(antPath);
 
+            // Update the best path if a shorter path is found
             if (antDistance < bestDistance) {
                 bestDistance = antDistance;
                 bestPath = antPath;
             }
 
+            // Update pheromone trails based on the ant's path
             updatePheromoneTrail(antPath, antDistance);
         }
 
         return bestPath;
     }
 
+    // Method to construct the path for a single ant
     private List<Integer> constructAntPath(Random random) {
         List<Integer> antPath = new ArrayList<>();
         boolean[] visitedCities = new boolean[numberOfCities];
@@ -72,6 +79,7 @@ public class fiveA {
         antPath.add(currentCity);
         visitedCities[currentCity] = true;
 
+        // Construct the path for the ant
         while (antPath.size() < numberOfCities) {
             int nextCity = selectNextCity(currentCity, visitedCities, random);
             antPath.add(nextCity);
@@ -83,10 +91,12 @@ public class fiveA {
         return antPath;
     }
 
+    // Method to select the next city for the ant based on pheromone levels and distances
     private int selectNextCity(int currentCity, boolean[] visitedCities, Random random) {
         double[] probabilities = new double[numberOfCities];
         double probabilitiesSum = 0.0;
 
+        // Calculate probabilities for selecting each unvisited city as the next city
         for (int city = 0; city < numberOfCities; city++) {
             if (!visitedCities[city]) {
                 double pheromoneLevel = Math.pow(pheromoneMatrix[currentCity][city], alpha);
@@ -96,6 +106,7 @@ public class fiveA {
             }
         }
 
+        // Choose the next city based on the calculated probabilities
         double randomValue = random.nextDouble();
         double cumulativeProbability = 0.0;
 
@@ -112,6 +123,7 @@ public class fiveA {
         return -1; // Unreachable code, should never happen
     }
 
+    // Method to calculate the total distance of a path
     private int calculatePathDistance(List<Integer> path) {
         int distance = 0;
         for (int i = 0; i < numberOfCities - 1; i++) {
@@ -123,6 +135,7 @@ public class fiveA {
         return distance;
     }
 
+    // Method to update pheromone trails based on the ant's path
     private void updatePheromoneTrail(List<Integer> path, int distance) {
         double pheromoneDeposit = 1.0 / distance;
 
@@ -134,6 +147,7 @@ public class fiveA {
         }
     }
 
+    // Main method to demonstrate example usage
     public static void main(String[] args) {
         // Example usage
         int[][] distanceMatrix = {
@@ -150,6 +164,7 @@ public class fiveA {
         double evaporationRate = 0.5;
         double initialPheromone = 0.1;
 
+        // Create an instance of Ant Colony Optimization and find the shortest path
         fiveA antColony = new fiveA(numberOfCities, numberOfAnts, alpha, beta,
                 evaporationRate, initialPheromone, startingCity);
         antColony.initializePheromoneMatrix();
@@ -158,4 +173,5 @@ public class fiveA {
         System.out.println("Shortest path: " + shortestPath);
     }
 }
+
 // output -Shortest path: [0, 1, 2, 3, 0]
